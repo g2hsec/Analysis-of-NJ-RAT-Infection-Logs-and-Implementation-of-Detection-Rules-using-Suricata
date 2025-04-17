@@ -120,44 +120,37 @@ FalsefAɽɅ5�
 
 4바이트의 데이터는 단순 0d0a 즉, 개행을 나타내는 패킷으로 확인되며、 이는 명령 및 연결 종료로 추정된다。
 
-## 🔍 Packet 1~3 Hex Dump 비교 (150 Byte)
-
-| Offset | Packet 1                                             | Packet 2                                             | Packet 3                                             |
-|--------|------------------------------------------------------|------------------------------------------------------|------------------------------------------------------|
-| 0000   |<span style="color:red"> 00 0c 29 82 cb 33 ec f4 bb ea 15 88 08 00 45 00       | <span style="color:red">00 0c 29 82 cb 33 ec f4 bb ea 15 88 08 00 45 00       | <span style="color:red">00 0c 29 82 cb 33 ec f4 bb ea 15 88 08 00 45 00       |
-| 0010   | 00 be</span> 25 a7 40 00 80 06 e5 ca c0 a8 02 04 34 1c       | 00 be</sapn> 27 93 40 00 80 06 99 03 c0 a8 02 04 03 45       | 00 be</sapn> 27 9b 40 00 80 06 98 fb c0 a8 02 04 03 45       |
-| 0020   | f7 ff c2 1f 4d c1 b7 69 4d b1 f1 04 3e b1 50 18       | 73 b2 c2 20 4d c1 c0 0b 02 73 3a 99 76 80 50 18       | 73 b2 c2 21 4d c1 f9 a5 c8 d9 bf 5e 02 0b 50 18       |
+## 🔍 Packet 1~6 Hex Dump 비교 (150 - 160 Byte)
 
 
----
+| Offset | Packet 1 150 byte                                    | Packet 2  160 byte                                   | Packet 3  35 byte                                    | Packet 4  15 byte                                    |
+|--------|------------------------------------------------------|------------------------------------------------------|------------------------------------------------------|------------------------------------------------------|
+| 0000   | 31 34 36 00 6c 6c 7c 27 7c 27 7c 53 46 56 54 51       | 31 35 36 00 69 6e 66 7c 27 7c 27 7c 53 46 56 54       | 33 32 00 61 63 74 7c 27 7c 27 7c 55 48 4a 76 5a       |31 32 00 61 63 74 7c 27 7c 27 7c 41 41 3d 3d
+| 0010   | 6c 42 66 51 7a 42 43 4e 6b 4d 33 4e 6a 63 3d 7c       | 51 6c 41 4e 43 6a 59 75 64 47 4e 77 4c 6d 56 31       | 33 4a 68 62 53 42 4e 59 57 35 68 5a 32 56 79 41       |
+| 0020   | 27 7c 27 7c 30 36 35 33 36 37 7c 27 7c 27 7c 6a       | 4c 6d 35 6e 63 6d 39 72 4c 6d 6c 76 4f 6a 45 35       | 41 3d 3d       |
 
-### 🔹 Packet 4 (160 Byte)
+| Offset | Packet 1 130 byte                                    |
+|--------|------------------------------------------------------|
+| 0000   | 31 32 36 00 6c 6c 7c 27 7c 27 7c 53 46 56 54 51       | 
+| 0010   | 6c 42 66 51 7a 42 43 4e 6b 4d 33 4e 6a 63 3d 7c       |
+| 0020   | 27 7c 27 7c 30 36 35 33 36 37 7c 27 7c 27 7c 6a       | 
+'''
+'''
 
-| Offset | Hex Dump |
-|--------|----------|
-| 0000 | 00 0c 29 82 cb 33 ec f4 bb ea 15 88 08 00 45 00 |
-| 0010 | 00 c8 27 94 40 00 80 06 98 c0 c0 a8 02 04 03 45 |
-| 0020 | 73 b2 c2 20 4d c1 c0 0b 03 09 3a 99 76 80 50 18 |
+> 동일 패킷 (시기느처 패킷으로 추정) : 150 Byte, 130 Byte -> 7c 27 7c 27 7c 53 46 56 54 51
 
----
+> 각 Data 크기별 패킷 내용은 동일 
 
-### 🔹 Packet 5 (160 Byte)
+# Suricata Rule
 
-| Offset | Hex Dump |
-|--------|----------|
-| 0000 | 00 0c 29 82 cb 33 ec f4 bb ea 15 88 08 00 45 00 |
-| 0010 | 00 c8 27 9c 40 00 80 06 98 c8 c0 a8 02 04 03 45 |
-| 0020 | 73 b2 c2 21 4d c1 f9 a5 c9 6f bf 5e 02 0b 50 18 |
-
----
-
-### 🔹 Packet 6 (160 Byte)
-
-| Offset | Hex Dump |
-|--------|----------|
-| 0000 | 00 0c 29 82 cb 33 ec f4 bb ea 15 88 08 00 45 00 |
-| 0010 | 00 c8 25 af 40 00 80 06 e5 b8 c0 a8 02 04 34 1c |
-| 0020 | f7 ff c2 22 4d c1 9f 92 d1 62 75 c0 a4 cb 50 18 |
+```
+alert ip any any -> [23.0.174.98,52.28.247.255,3.69.115.178,3.68.171.119] any (msg:"[ALERT]Njrat C2 Communication with Known Malicious IP"; sid:1000001; rev:1;)
+alert dns any any -> any any (msg:"[ALERT]Njrat DNS Query for ngrok.io (Possible C2)"; dns.query; content:"ngrok.io"; nocase; sid:1000002; rev:2;;)
+alert tcp any any -> any any (msg:"[ALERT]Njrat connect_toClient[M->A 4Byte]";  dsize:4; flow:to_client; content:"|0d 0a 0d 0a|"; sid: 1000003;rev:3;)
+alert tcp any any -> any any (msg:"[ALERT]Njrat connect_toServ[A->M 150, 160, 130Byte]"; flow:to_server; content:"|7c 27 7c 27 7c|"; offset:6; depth:20; sid: 1000004;rev:4;)
+alert tcp any any -> any any (msg:"[ALERT]Njrat connect_toServ2[A->M 35Byte]"; flow:to_server; content:"|33 32 00 61 63 74 7c 27 7c 27 7c|"; sid: 1000005;rev:5;)
+alert tcp any any -> any any (msg:"[ALERT]Njrat connect_toServ3[A->M 15Byte]"; flow:to_server; content:"|61 63 74 7c 27 7c 27 7c|"; sid: 1000006;rev:6;)
+```
 
 
 
